@@ -1,2 +1,2 @@
-# gamingcloud
-a gamingcloud based on gonode
+# gonode-toolkit
+a extended toolkit for gonode
