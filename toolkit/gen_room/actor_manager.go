@@ -89,20 +89,20 @@ func (a *ActorsManager) GetActorByIndex(index int) (*Actor, bool) {
 	return actor.(*Actor), true
 }
 
-func (a *ActorsManager) RemoveActorByNr(actorNr int32) bool {
+func (a *ActorsManager) RemoveActorByNr(actorNr int32) (*Actor, bool) {
 	if actor, exist := a.GetActorByNr(actorNr); exist {
 		a.allActors.Remove(actor)
-		return true
+		return actor, true
 	}
-	return false
+	return nil, false
 }
 
-func (a *ActorsManager) RemoveActorByPeer(peerId string) bool {
+func (a *ActorsManager) RemoveActorByPeer(peerId string) (*Actor, bool) {
 	if actor, exist := a.GetActorByPeerId(peerId); exist {
 		a.allActors.Remove(actor)
-		return true
+		return actor, true
 	}
-	return false
+	return nil, false
 }
 
 func (a *ActorsManager) GetAllActorNrs() []int32 {

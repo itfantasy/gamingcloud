@@ -6,14 +6,12 @@ import (
 
 type EventData struct {
 	actorNr int32
-	code    byte
 	data    []byte
 }
 
-func NewEventData(actor int32, eventCode byte, data []byte) *EventData {
+func NewEventData(actor int32, data []byte) *EventData {
 	e := new(EventData)
 	e.actorNr = actor
-	e.code = eventCode
 	lenth := len(data)
 	e.data = make([]byte, lenth, lenth)
 	copy(e.data, data)
@@ -22,10 +20,6 @@ func NewEventData(actor int32, eventCode byte, data []byte) *EventData {
 
 func (e *EventData) ActorNr() int32 {
 	return e.actorNr
-}
-
-func (e *EventData) Code() byte {
-	return e.code
 }
 
 func (e *EventData) Data() []byte {
@@ -42,8 +36,8 @@ func NewEventCacheManager() *EventCacheManager {
 	return e
 }
 
-func (e *EventCacheManager) AddEvent(actor int32, eventCode byte, data []byte) {
-	e.events.Add(NewEventData(actor, eventCode, data))
+func (e *EventCacheManager) AddEvent(actor int32, data []byte) {
+	e.events.Add(NewEventData(actor, data))
 }
 
 func (e *EventCacheManager) RemoveEventsByActor(actor int32) int {

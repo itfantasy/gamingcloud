@@ -15,9 +15,9 @@ type LobbyServerInfo struct {
 	RegComp  string
 }
 
-func ExpandToNodeInfo(serverInfo LobbyServerInfo) *gen_server.NodeInfo {
+func (serverInfo *LobbyServerInfo) ExpandToNodeInfo() *gen_server.NodeInfo {
 	info := gen_server.NewNodeInfo()
-	if strs.StartsWith(serverInfo.Id, toolkit.PREFIX_LOBBY) {
+	if strs.StartsWith(serverInfo.Id, toolkit.LABEL_LOBBY) {
 		info.Id = serverInfo.Id
 	} else {
 		info.Id = toolkit.PREFIX_LOBBY + serverInfo.Id

@@ -89,7 +89,7 @@ func (r *RoomManager) FetchRoom(roomId string) *RoomEntity {
 	if exist {
 		return item.(*RoomEntity)
 	} else {
-		room := NewRoomEntity(roomId, "")
+		room := NewRoomEntity(roomId)
 		r.dict.Set(roomId, room)
 		return room
 	}

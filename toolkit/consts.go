@@ -30,7 +30,7 @@ const (
 )
 
 const (
-	Group_Other  string = "Others"
+	Group_Others string = "Others"
 	Group_All    string = "All"
 	Group_Master string = "Master"
 )
