@@ -54,7 +54,7 @@ func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 }
 
 func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
-	room, err := roomManager().GetRoom(roomId)
+	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -78,7 +78,7 @@ func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 }
 
 func GetActorInRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
-	room, err := roomManager().GetRoom(roomId)
+	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
 		return nil, nil, err
 	}

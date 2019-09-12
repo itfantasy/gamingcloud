@@ -75,7 +75,7 @@ func (r *RoomManager) CreateRoom(roomId string) (*RoomEntity, error) {
 	return room, nil
 }
 
-func (r *RoomManager) GetRoom(roomId string) (*RoomEntity, error) {
+func (r *RoomManager) FindRoom(roomId string) (*RoomEntity, error) {
 	item, exist := r.dict.Get(roomId)
 	if exist {
 		return item.(*RoomEntity), nil
