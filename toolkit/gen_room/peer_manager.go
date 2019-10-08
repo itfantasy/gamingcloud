@@ -1,82 +1,48 @@
 package gen_room
 
 import (
-	"github.com/itfantasy/gonode/utils/stl"
+	"github.com/itfantasy/gonode-toolkit/toolkit"
 )
 
-type Peer interface {
-	PeerId() string
-}
-
-type PeerManager struct {
-	dict *stl.Dictionary
-}
-
-func NewPeerManager() *PeerManager {
-	this := new(PeerManager)
-	this.dict = stl.NewDictionary()
-	return this
-}
-
-func (this *PeerManager) AddPeer(peer Peer) error {
-	return this.dict.Add(peer.PeerId(), peer)
-}
-
-func (this *PeerManager) RemovePeer(peerId string) error {
-	return this.dict.Remove(peerId)
-}
-
-func (this *PeerManager) GetPeer(peerId string) (Peer, bool) {
-	ret, exist := this.dict.Get(peerId)
-	if !exist {
-		return nil, false
-	}
-	peer, ok := ret.(Peer)
-	if !ok {
-		return nil, false
-	}
-	return peer, true
-}
-
-var _peerManager *PeerManager
+var _peerManager *toolkit.PeerManager
 
 func init() {
-	_peerManager = NewPeerManager()
+	_peerManager = toolkit.NewPeerManager()
 }
 
-func peerManager() *PeerManager {
+func peerManager() *toolkit.PeerManager {
 	return _peerManager
 }
 
-type ClientPeer struct {
+type RoomPeer struct {
 	peerId string
 	roomId string
 }
 
-func NewClientPeer(peerId string) *ClientPeer {
-	this := new(ClientPeer)
+func NewRoomPeer(peerId string) *RoomPeer {
+	this := new(RoomPeer)
 	this.peerId = peerId
 	return this
 }
 
-func (this *ClientPeer) PeerId() string {
-	return this.peerId
+func (r *RoomPeer) PeerId() string {
+	return r.peerId
 }
 
-func (this *ClientPeer) RoomId() string {
-	return this.roomId
+func (r *RoomPeer) RoomId() string {
+	return r.roomId
 }
 
-func (this *ClientPeer) SetRoomId(roomId string) {
-	this.roomId = roomId
+func (r *RoomPeer) SetRoomId(roomId string) {
+	r.roomId = roomId
 }
 
-func (this *PeerManager) GetClientPeer(peerId string) (*ClientPeer, bool) {
-	peer, ok := this.GetPeer(peerId)
+func getRoomPeer(peerId string) (*RoomPeer, bool) {
+	peer, ok := peerManager().GetPeer(peerId)
 	if !ok {
 		return nil, false
 	}
-	cntpeer, ok := peer.(*ClientPeer)
+	cntpeer, ok := peer.(*RoomPeer)
 	if !ok {
 		return nil, false
 	}

@@ -89,7 +89,7 @@ func GetActorInRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 	return room, actor, nil
 }
 
-func DisposeRoom(roomId string) error {
+func DisposeRoom(peerId string, roomId string) error {
 	return nil
 }
 
@@ -174,7 +174,7 @@ func ClrEventCache(roomId string, peerId string) error {
 	return nil
 }
 
-func AddPeer(peer Peer) error {
+func AddPeer(peer *RoomPeer) error {
 	return peerManager().AddPeer(peer)
 }
 
@@ -182,10 +182,6 @@ func RemovePeer(peerId string) error {
 	return peerManager().RemovePeer(peerId)
 }
 
-func GetPeer(peerId string) (Peer, bool) {
-	return peerManager().GetPeer(peerId)
-}
-
-func GetClientPeer(peerId string) (*ClientPeer, bool) {
-	return peerManager().GetClientPeer(peerId)
+func GetPeer(peerId string) (*RoomPeer, bool) {
+	return getRoomPeer(peerId)
 }

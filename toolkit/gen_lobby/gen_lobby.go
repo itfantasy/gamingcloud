@@ -1,5 +1,11 @@
 package gen_lobby
 
+import (
+	"errors"
+)
+
+// --------------------- super admin
+
 func CreateLobby(lobbyId string) (*LobbyEntity, error) {
 	return lobbyManager().CreateLobby(lobbyId)
 }
@@ -13,31 +19,56 @@ func DisposeLobby(lobbyId string, force bool) error {
 	return nil
 }
 
-func JoinLobby(lobbyId string) error {
-	return nil
-}
-
-func LeaveLobby(lobbyId string) error {
-	return nil
-}
-
 func LobbyStats(lobbyId string) error {
 	return nil
 }
 
-func RoomList(lobbyId string) error {
+func RoomList(lobbyId string, startIndex int, endIndex int) error {
 	return nil
 }
 
-func CreateRoom(roomId string) error {
-	// 自动找寻负载最低的roomserver，并向其请求创建房间
+// --------------------- guest usr
+
+func peerCannotFind(peerId string) error {
+	return errors.New("cannot find the peer:" + peerId)
+}
+
+func JoinLobby(peerId string, lobbyId string) error {
+	l, exist := getLobbyPeer(peerId)
+	if !exist {
+		return peerCannotFind(peerId)
+	}
+	l.SetLobbyId(lobbyId)
 	return nil
 }
 
-func JoinRoom(roomId string) error {
+func LeaveLobby(peerId string, lobbyId string) error {
+	l, exist := getLobbyPeer(peerId)
+	if !exist {
+		return peerCannotFind(peerId)
+	}
+	l.SetDefaultLobby()
 	return nil
 }
 
-func JoinRandomRoom() error {
+func CreateRoom(peerId string, roomId string) error {
+	l, exist := getLobbyPeer(peerId)
+	if !exist {
+		return peerCannotFind(peerId)
+	}
+	lobby, err := lobbyManager().FindLobby(l.LobbyId())
+	if err != nil {
+		return err
+	}
+	_, err := lobby.CreateRoom(roomId)
+	// TODO
+	return nil
+}
+
+func JoinRoom(peerId string, roomId string) error {
+	return nil
+}
+
+func JoinRandomRoom(peerId string) error {
 	return nil
 }

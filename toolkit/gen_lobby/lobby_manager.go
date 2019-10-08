@@ -17,28 +17,39 @@ func NewLobbyEntity(lobbyId string) *LobbyEntity {
 	return l
 }
 
-func (l *LobbyEntity) SetNick(nick string) {
+func (l *LobbyEntity) SetNick(nick string) error {
 	l.Nick = nick
-	fb := mongodb.NewFilterBuilder().Equal("lobbyid", l.LobbyId).Serialize()
-	op := mongodb.NewOptionBuilder().Set("nick", l.Nick).Serialize()
-	gamedb.UpdateLobby(fb, op)
+	fb := mongodb.NewFilter().Equal("lobbyid", l.LobbyId).Serialize()
+	op := mongodb.NewOption().Set("nick", l.Nick).Serialize()
+	return gamedb.UpdateLobby(fb, op)
 }
 
-func (l *LobbyEntity) RoomCount() int {
-
+func (l *LobbyEntity) RoomCount() (int, error) {
+	fb := mongodb.NewFilter().Equal("lobbyid", l.LobbyId).Serialize()
+	count, err := gamedb.LobbyCol().CountDocuments(gamedb.Cxt(), fb)
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
 }
 
 func (l *LobbyEntity) PeerCount() int {
-
+	// TODO
+	return 0
 }
 
-func (l *LobbyEntity) Rooms() []LiteRoomEntity {
-
+func (l *LobbyEntity) Rooms(startIndex int, endIndex int) []LiteRoomEntity {
+	// TODO
+	return nil
 }
 
-func (l *LobbyEntity) CreateRoom(roomId string, nodeId string) (*LiteRoomEntity, error) {
+func (l *LobbyEntity) CreateRoom(roomId string) (*LiteRoomEntity, error) {
+	nodeId, err := gamedb.FindBalanceNode(l.LobbyId)
+	if err != nil {
+		return nil, err
+	}
 	lr := NewLiteRoomEntity(roomId, l.LobbyId, nodeId)
-	if err := gamedb.CreateRoom(lr); err != nil {
+	if err := gamedb.CreateRoom(lr, l.LobbyId); err != nil {
 		return nil, err
 	}
 	return lr, nil
@@ -46,15 +57,19 @@ func (l *LobbyEntity) CreateRoom(roomId string, nodeId string) (*LiteRoomEntity,
 
 func (l *LobbyEntity) FindRoom(roomId string) (*LiteRoomEntity, error) {
 	lr := NewLiteRoomEntity("", "", "")
-	fb := mongodb.NewFilterBuilder().Equal("roomid", roomId).Serialize()
-	if err := gamedb.FindRoom(fb, lr); err != nil {
+	fb := mongodb.NewFilter().Equal("roomid", roomId).Serialize()
+	if err := gamedb.FindRoom(fb, lr, l.LobbyId); err != nil {
 		return nil, err
 	}
 	return lr, nil
 }
 
 func (l *LobbyEntity) RandomRoom() (*LiteRoomEntity, error) {
-
+	lr := NewLiteRoomEntity("", "", "")
+	if err := gamedb.FindBalanceRoom(lr, l.LobbyId); err != nil {
+		return nil, err
+	}
+	return lr, nil
 }
 
 type LobbyManager struct {
@@ -74,16 +89,13 @@ func (l *LobbyManager) CreateLobby(lobbyId string) (*LobbyEntity, error) {
 }
 
 func (l *LobbyManager) DisposeLobby(lobbyId string) error {
-	filter := mongodb.NewFilterBuilder().Equal("lobbyid", lobbyId).Serialize()
-	if err := gamedb.DeleteRooms(filter); err != nil {
-		return err
-	}
+	filter := mongodb.NewFilter().Equal("lobbyid", lobbyId).Serialize()
 	return gamedb.DeleteLobby(filter)
 }
 
 func (l *LobbyManager) FindLobby(lobbyId string) (*LobbyEntity, error) {
 	lobby := NewLobbyEntity("")
-	filter := mongodb.NewFilterBuilder().Equal("lobbyid", lobbyId).Serialize()
+	filter := mongodb.NewFilter().Equal("lobbyid", lobbyId).Serialize()
 	if err := gamedb.FindLobby(filter, lobby); err != nil {
 		return nil, err
 	}
@@ -102,11 +114,12 @@ func (l *LobbyManager) FindLobby(lobbyId string) (*LobbyEntity, error) {
 }
 
 type LiteRoomEntity struct {
-	RoomId    string `bson:"roomid"`
-	Nick      string `bson:"nick"`
-	LobbyId   string `bson:"lobbyid"`
-	NodeId    string `bson:"nodeid"`
-	PeerCount int    `bson:"peercount"`
+	RoomId    string            `bson:"roomid"`
+	Nick      string            `bson:"nick"`
+	LobbyId   string            `bson:"lobbyid"`
+	NodeId    string            `bson:"nodeid"`
+	PeerCount int               `bson:"peercount"`
+	UsrDatas  map[string]string `bson:"usrdatas"`
 }
 
 func NewLiteRoomEntity(roomId string, lobbyId string, nodeId string) *LiteRoomEntity {
@@ -116,6 +129,7 @@ func NewLiteRoomEntity(roomId string, lobbyId string, nodeId string) *LiteRoomEn
 	lr.LobbyId = lobbyId
 	lr.NodeId = nodeId
 	lr.PeerCount = 0
+	lr.UsrDatas = make(map[string]string)
 	return lr
 }
 
