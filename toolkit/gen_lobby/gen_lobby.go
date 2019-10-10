@@ -7,24 +7,40 @@ import (
 // --------------------- super admin
 
 func CreateLobby(lobbyId string) (*LobbyEntity, error) {
-	return lobbyManager().CreateLobby(lobbyId)
-}
-
-func DisposeLobby(lobbyId string, force bool) error {
-	// 如果强制释放，则位于该大厅的房间将被悉数销毁
-	if force {
-		return lobbyManager().DisposeLobby(lobbyId)
+	lobby, err := lobbyManager().CreateLobby(lobbyId)
+	if err != nil {
+		return nil, err
 	}
-	// 否则，等待该大厅所有房间均释放时再自动销毁（标志位）
-	return nil
+	return lobby, nil
 }
 
-func LobbyStats(lobbyId string) error {
-	return nil
+func DisposeLobby(lobbyId string) (*LobbyEntity, error) {
+	lobby, err := lobbyManager().FindLobby(lobbyId)
+	if err != nil {
+		return nil, err
+	}
+	if err := lobbyManager().DisposeLobby(lobbyId); err != nil {
+		return nil, err
+	}
+	return lobby, nil
 }
 
-func RoomList(lobbyId string, startIndex int, endIndex int) error {
-	return nil
+// --------------------- guest usr for all
+
+func LobbyStats(lobbyId string) (*LobbyEntity, error) {
+	lobby, err := lobbyManager().FindLobby(lobbyId)
+	if err != nil {
+		return nil, err
+	}
+	return lobby, nil
+}
+
+func RoomList(lobbyId string, startIndex int, endIndex int) ([]*LiteRoomEntity, error) {
+	lobby, err := lobbyManager().FindLobby(lobbyId)
+	if err != nil {
+		return nil, err
+	}
+	return lobby.Rooms(startIndex, endIndex)
 }
 
 // --------------------- guest usr
@@ -51,24 +67,64 @@ func LeaveLobby(peerId string, lobbyId string) error {
 	return nil
 }
 
-func CreateRoom(peerId string, roomId string) error {
+func CreateRoom(peerId string, roomId string) (*LiteRoomEntity, error) {
 	l, exist := getLobbyPeer(peerId)
 	if !exist {
-		return peerCannotFind(peerId)
+		return nil, peerCannotFind(peerId)
 	}
 	lobby, err := lobbyManager().FindLobby(l.LobbyId())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err := lobby.CreateRoom(roomId)
-	// TODO
-	return nil
+	room, err := lobby.CreateRoom(roomId)
+	if err != nil {
+		return nil, err
+	}
+	return room, nil
 }
 
-func JoinRoom(peerId string, roomId string) error {
-	return nil
+func JoinRoom(peerId string, roomId string) (*LiteRoomEntity, error) {
+	l, exist := getLobbyPeer(peerId)
+	if !exist {
+		return nil, peerCannotFind(peerId)
+	}
+	lobby, err := lobbyManager().FindLobby(l.LobbyId())
+	if err != nil {
+		return nil, err
+	}
+	room, err := lobby.FindRoom(roomId)
+	if err != nil {
+		return nil, err
+	}
+	// TODO if maxplayer
+	return room, nil
 }
 
-func JoinRandomRoom(peerId string) error {
-	return nil
+func JoinRandomRoom(peerId string) (*LiteRoomEntity, error) {
+	l, exist := getLobbyPeer(peerId)
+	if !exist {
+		return nil, peerCannotFind(peerId)
+	}
+	lobby, err := lobbyManager().FindLobby(l.LobbyId())
+	if err != nil {
+		return nil, err
+	}
+	room, err := lobby.RandomRoom()
+	if err != nil {
+		return nil, err
+	}
+	// TODO if maxplayer
+	return room, nil
+}
+
+func AddPeer(peer *LobbyPeer) error {
+	return peerManager().AddPeer(peer)
+}
+
+func RemovePeer(peerId string) error {
+	return peerManager().RemovePeer(peerId)
+}
+
+func GetPeer(peerId string) (*LobbyPeer, bool) {
+	return getLobbyPeer(peerId)
 }

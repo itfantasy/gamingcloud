@@ -38,9 +38,9 @@ func (l *LobbyEntity) PeerCount() int {
 	return 0
 }
 
-func (l *LobbyEntity) Rooms(startIndex int, endIndex int) []LiteRoomEntity {
+func (l *LobbyEntity) Rooms(startIndex int, endIndex int) ([]*LiteRoomEntity, error) {
 	// TODO
-	return nil
+	return nil, nil
 }
 
 func (l *LobbyEntity) CreateRoom(roomId string) (*LiteRoomEntity, error) {

@@ -30,6 +30,6 @@ func (serverInfo *RoomServerInfo) ExpandToNodeInfo() *gen_server.NodeInfo {
 	info.LogLevel = serverInfo.LogLevel
 	info.LogComp = serverInfo.LogComp
 	info.RegComp = serverInfo.RegComp
-	info.UsrDatas["PubDomain"] = serverInfo.PubDomain
+	info.UsrDatas[toolkit.USRDATA_PUBDOMAIN] = serverInfo.PubDomain
 	return info
 }
