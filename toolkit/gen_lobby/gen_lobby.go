@@ -96,7 +96,6 @@ func JoinRoom(peerId string, roomId string) (*LiteRoomEntity, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO if maxplayer
 	return room, nil
 }
 
@@ -113,7 +112,6 @@ func JoinRandomRoom(peerId string) (*LiteRoomEntity, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO if maxplayer
 	return room, nil
 }
 

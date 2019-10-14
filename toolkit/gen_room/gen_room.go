@@ -19,8 +19,8 @@ func BindCallbacks(callbacks GenRoomCallbacks) {
 	_callbacks = callbacks
 }
 
-func CreateRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
-	room, err := roomManager().CreateRoom(roomId)
+func CreateRoom(peerId string, roomId string, lobbyId string, maxPeers byte) (*RoomEntity, *Actor, error) {
+	room, err := roomManager().CreateRoom(roomId, lobbyId, maxPeers)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,6 +29,11 @@ func CreateRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 		return nil, nil, err
 	}
 	room.SetMasterId(actor.ActorNr())
+	if err := room.UpdateStatusToGameDB(); err != nil {
+		room.ActorsManager().RemoveActorByPeer(peerId)
+		room.SetMasterId(0)
+		return nil, nil, err
+	}
 	if _callbacks != nil {
 		_callbacks.OnJoin(actor, room)
 	}
@@ -36,15 +41,19 @@ func CreateRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 }
 
 func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
-	//room, err := roomManager().GetRoom(roomId)
-	//if err != nil {
-	//	return nil, nil, err
-	//}
-	room := roomManager().FetchRoom(roomId)
-	room.SetMasterId(1)
-
+	room, err := roomManager().FindRoom(roomId)
+	if err != nil {
+		return nil, nil, err
+	}
+	if room.IsFull() {
+		return nil, nil, errors.New("the room is full!!" + roomId)
+	}
 	actor, err := room.ActorsManager().AddNewActor(peerId)
 	if err != nil {
+		return nil, nil, err
+	}
+	if err := room.UpdateStatusToGameDB(); err != nil {
+		room.ActorsManager().RemoveActorByPeer(peerId)
 		return nil, nil, err
 	}
 	if _callbacks != nil {
@@ -71,6 +80,9 @@ func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 			room.SetMasterId(newMaster.ActorNr())
 		}
 	}
+	if err := room.UpdateStatusToGameDB(); err != nil {
+		return nil, nil, err
+	}
 	if _callbacks != nil {
 		_callbacks.OnLeave(actor, room)
 	}
@@ -89,7 +101,16 @@ func GetActorInRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 	return room, actor, nil
 }
 
-func DisposeRoom(peerId string, roomId string) error {
+func DisposeRoom(roomId string) error {
+	room, err := roomManager().FindRoom(roomId)
+	if err != nil {
+		return err
+	}
+	peers := room.ActorsManager().GetAllPeerIds()
+	for _, peerId := range peers {
+		gonode.Close(peerId)
+	}
+	gonode.LogWarn("room has been closed!!" + roomId)
 	return nil
 }
 

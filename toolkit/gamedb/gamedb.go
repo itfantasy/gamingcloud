@@ -166,6 +166,24 @@ func FindRooms(filter map[string]interface{}, entities interface{}, lobbyid stri
 	return nil
 }
 
+func FindLobbyRoomsPeerCount(lobbyid string) (int, error) {
+	gb := mongodb.NewGroupBy().Min("peercount", "lobbyid", "num").Serialize()
+	ret, err := RoomCol(lobbyid).Aggregate(_context, gb)
+	if err != nil {
+		return 0, err
+	}
+	arr := make([]BalanceResult, 0, 3)
+	if err := ret.All(_context, arr); err != nil {
+		return 0, err
+	}
+	for _, result := range arr {
+		if result.Id == lobbyid {
+			return result.Num, nil
+		}
+	}
+	return 0, errors.New("cannot find the lobby:" + lobbyid)
+}
+
 func FindBalanceRoom(entity interface{}, lobbyid string) error {
 	gb := mongodb.NewGroupBy().Min("peercount", "nodeid", "num").Serialize()
 	ret, err := RoomCol(lobbyid).Aggregate(_context, gb)

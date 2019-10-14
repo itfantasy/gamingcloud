@@ -33,14 +33,17 @@ func (l *LobbyEntity) RoomCount() (int, error) {
 	return int(count), nil
 }
 
-func (l *LobbyEntity) PeerCount() int {
-	// TODO
-	return 0
+func (l *LobbyEntity) PeerCount() (int, error) {
+	return gamedb.FindLobbyRoomsPeerCount(l.LobbyId)
 }
 
 func (l *LobbyEntity) Rooms(startIndex int, endIndex int) ([]*LiteRoomEntity, error) {
-	// TODO
-	return nil, nil
+	arr := make([]*LiteRoomEntity, 0, endIndex-startIndex+1)
+	fb := mongodb.NewFilter().Equal("lobbyid", l.LobbyId).Serialize()
+	if err := gamedb.FindRooms(fb, arr, l.LobbyId); err != nil {
+		return nil, err
+	}
+	return arr, nil
 }
 
 func (l *LobbyEntity) CreateRoom(roomId string) (*LiteRoomEntity, error) {
@@ -99,17 +102,6 @@ func (l *LobbyManager) FindLobby(lobbyId string) (*LobbyEntity, error) {
 	if err := gamedb.FindLobby(filter, lobby); err != nil {
 		return nil, err
 	}
-	/*
-		rooms := make([]LiteRoomEntity, 0, 10)
-		if err := gamedb.FindRooms(filter, rooms); err != nil {
-			return nil, err
-		}
-		lobby.Rooms = rooms
-		for _, room := range rooms {
-			lobby.RoomCount = lobby.RoomCount + 1
-			lobby.PeerCount = lobby.PeerCount + room.PeerCount
-		}
-	*/
 	return lobby, nil
 }
 
@@ -119,6 +111,7 @@ type LiteRoomEntity struct {
 	LobbyId   string            `bson:"lobbyid"`
 	NodeId    string            `bson:"nodeid"`
 	PeerCount int               `bson:"peercount"`
+	MaxPeers  int               `bson:"maxpeers"`
 	UsrDatas  map[string]string `bson:"usrdatas"`
 }
 
@@ -129,12 +122,9 @@ func NewLiteRoomEntity(roomId string, lobbyId string, nodeId string) *LiteRoomEn
 	lr.LobbyId = lobbyId
 	lr.NodeId = nodeId
 	lr.PeerCount = 0
+	lr.MaxPeers = 0
 	lr.UsrDatas = make(map[string]string)
 	return lr
-}
-
-func (lr *LiteRoomEntity) SetNick(nick string) {
-	lr.Nick = nick
 }
 
 var _lobbyManager *LobbyManager
