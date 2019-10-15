@@ -2,11 +2,31 @@ package gen_lobby
 
 import (
 	"errors"
+
+	"github.com/itfantasy/gonode-toolkit/toolkit"
+	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
 )
 
 // --------------------- super admin
 
+func InitGameDB(mongoConf string) error {
+	if err := gamedb.InitMongo(mongoConf); err != nil {
+		return err
+	}
+	oldlobby, _ := lobbyManager().FindLobby(toolkit.DEFAULT_LOBBY)
+	if oldlobby == nil {
+		if _, err := CreateLobby(toolkit.DEFAULT_LOBBY); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func CreateLobby(lobbyId string) (*LobbyEntity, error) {
+	oldlobby, _ := lobbyManager().FindLobby(lobbyId)
+	if oldlobby != nil {
+		return nil, errors.New("there has been a lobby has the same lobbyid!" + lobbyId)
+	}
 	lobby, err := lobbyManager().CreateLobby(lobbyId)
 	if err != nil {
 		return nil, err

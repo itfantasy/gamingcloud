@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/itfantasy/gonode"
+	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
 )
 
 type GenRoomCallbacks interface {
@@ -17,6 +18,13 @@ var _callbacks GenRoomCallbacks
 
 func BindCallbacks(callbacks GenRoomCallbacks) {
 	_callbacks = callbacks
+}
+
+func InitGameDB(mongoConf string) error {
+	if err := gamedb.InitMongo(mongoConf); err != nil {
+		return err
+	}
+	return nil
 }
 
 func CreateRoom(peerId string, roomId string, lobbyId string, maxPeers byte) (*RoomEntity, *Actor, error) {
