@@ -37,6 +37,11 @@ func (l *LobbyEntity) PeerCount() (int, error) {
 	return gamedb.FindLobbyRoomsPeerCount(l.LobbyId)
 }
 
+func (l *LobbyEntity) MasterCount() (int, error) {
+	// TODO
+	return 0, nil
+}
+
 func (l *LobbyEntity) Rooms(startIndex int, endIndex int) ([]*LiteRoomEntity, error) {
 	arr := make([]*LiteRoomEntity, 0, endIndex-startIndex+1)
 	fb := mongodb.NewFilter().Equal("lobbyid", l.LobbyId).Serialize()

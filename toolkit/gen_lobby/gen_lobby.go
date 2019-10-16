@@ -5,6 +5,7 @@ import (
 
 	"github.com/itfantasy/gonode-toolkit/toolkit"
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
+	"github.com/itfantasy/gonode/behaviors/gen_server"
 )
 
 // --------------------- super admin
@@ -145,4 +146,9 @@ func RemovePeer(peerId string) error {
 
 func GetPeer(peerId string) (*LobbyPeer, bool) {
 	return getLobbyPeer(peerId)
+}
+
+func RoomPubDomain(info *gen_server.NodeInfo) (string, bool) {
+	pub, exist := info.UsrDatas[toolkit.USRDATA_PUBDOMAIN]
+	return pub, exist
 }
