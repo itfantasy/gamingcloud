@@ -85,10 +85,12 @@ func FindBalanceNode(lobbyid string) (string, error) {
 	gb := mongodb.NewGroupBy().Sum("peercount", "nodeid", "num").Serialize()
 	ret, err := RoomCol(lobbyid).Aggregate(_context, gb)
 	if err != nil {
+		gonode.Debug(err)
 		return "", err
 	}
 	arr := make([]BalanceResult, 0, 3)
 	if err := ret.All(_context, arr); err != nil {
+		gonode.Debug(err)
 		return "", err
 	}
 	_map := make(map[string]int)

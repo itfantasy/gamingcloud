@@ -1,6 +1,7 @@
 package gen_lobby
 
 import (
+	"github.com/itfantasy/gonode"
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
 	"github.com/itfantasy/gonode/components/mongodb"
 )
@@ -58,6 +59,7 @@ func (l *LobbyEntity) CreateRoom(roomId string) (*LiteRoomEntity, error) {
 	}
 	lr := NewLiteRoomEntity(roomId, l.LobbyId, nodeId)
 	if err := gamedb.CreateRoom(lr, l.LobbyId); err != nil {
+		gonode.Debug(err)
 		return nil, err
 	}
 	return lr, nil

@@ -131,7 +131,7 @@ func JoinRandomRoom(peerId string) (*LiteRoomEntity, error) {
 	}
 	room, err := lobby.RandomRoom()
 	if err != nil {
-		return nil, err
+		return nil, toolkit.Err_NoMatchFound
 	}
 	return room, nil
 }
