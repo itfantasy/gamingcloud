@@ -85,12 +85,10 @@ func FindBalanceNode(lobbyid string) (string, error) {
 	gb := mongodb.NewGroupBy().Sum("peercount", "nodeid", "num").Serialize()
 	ret, err := RoomCol(lobbyid).Aggregate(_context, gb)
 	if err != nil {
-		gonode.Debug(err)
 		return "", err
 	}
 	arr := make([]BalanceResult, 0, 3)
-	if err := ret.All(_context, arr); err != nil {
-		gonode.Debug(err)
+	if err := ret.All(_context, &arr); err != nil {
 		return "", err
 	}
 	_map := make(map[string]int)
@@ -103,15 +101,16 @@ func FindBalanceNode(lobbyid string) (string, error) {
 	}
 	var minnode = ""
 	var minnum = 999999
-	for _, result := range arr {
-		if result.Num < minnum {
-			minnode = result.Id
-			minnum = result.Num
+	for id, num := range _map {
+		if num < minnum {
+			minnode = id
+			minnum = num
 			if minnum <= 0 {
 				break
 			}
 		}
 	}
+	// TODO 这里打日志无反应。。但是调用方却没有返回err。。这到底是怎么回事。。？
 	return minnode, nil
 }
 
@@ -162,7 +161,7 @@ func FindRooms(filter map[string]interface{}, entities interface{}, lobbyid stri
 	if cursor.Err() != nil {
 		return cursor.Err()
 	}
-	if err := cursor.All(_context, entities); err != nil {
+	if err := cursor.All(_context, &entities); err != nil {
 		return err
 	}
 	return nil
@@ -175,7 +174,7 @@ func FindLobbyRoomsPeerCount(lobbyid string) (int, error) {
 		return 0, err
 	}
 	arr := make([]BalanceResult, 0, 3)
-	if err := ret.All(_context, arr); err != nil {
+	if err := ret.All(_context, &arr); err != nil {
 		return 0, err
 	}
 	for _, result := range arr {
@@ -193,7 +192,7 @@ func FindBalanceRoom(entity interface{}, lobbyid string) error {
 		return err
 	}
 	arr := make([]BalanceResult, 0, 3)
-	if err := ret.All(_context, arr); err != nil {
+	if err := ret.All(_context, &arr); err != nil {
 		return err
 	}
 	var minnode = ""
