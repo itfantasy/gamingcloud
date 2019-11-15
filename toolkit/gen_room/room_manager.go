@@ -31,6 +31,20 @@ func NewRoomEntity(roomId string, lobbyId string, maxPeers byte) *RoomEntity {
 	return r
 }
 
+type LiteRoomEntity struct {
+	RoomId    string            `bson:"roomid"`
+	Nick      string            `bson:"nick"`
+	LobbyId   string            `bson:"lobbyid"`
+	NodeId    string            `bson:"nodeid"`
+	PeerCount int               `bson:"peercount"`
+	MaxPeers  int               `bson:"maxpeers"`
+	UsrDatas  map[string]string `bson:"usrdatas"`
+}
+
+func NewRoomEntityFromLite(lite *LiteRoomEntity) *RoomEntity {
+	return NewRoomEntity(lite.RoomId, lite.LobbyId, byte(lite.MaxPeers))
+}
+
 func (r *RoomEntity) RoomId() string {
 	return r.roomId
 }
@@ -115,6 +129,14 @@ func (r *RoomManager) FindRoom(roomId string) (*RoomEntity, error) {
 	if exist {
 		return item.(*RoomEntity), nil
 	} else {
+		//lite := new(LiteRoomEntity)
+		//fb := mongodb.NewFilter().Equal("roomid", roomId).Serialize()
+		//if err := gamedb.FindRoom(fb, lite, lobbyId); err != nil {
+		//	return nil, errors.New("can not find a room with the roomId:" + roomId)
+		//}
+		//room := NewRoomEntityFromLite(lite)
+		//r.dict.Set(roomId, room)
+		//return room
 		return nil, errors.New("can not find a room with the roomId:" + roomId)
 	}
 }

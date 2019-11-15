@@ -13,7 +13,7 @@ const (
 	LABEL_ROOM           = "room"
 	PREFIX_LOBBY         = "lobby_"
 	PREFIX_ROOM          = "room_"
-	DEFAULT_LOBBY        = "__default_lobby"
+	DEFAULT_LOBBY        = "__default"
 )
 
 const (

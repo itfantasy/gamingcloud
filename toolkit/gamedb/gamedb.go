@@ -110,7 +110,6 @@ func FindBalanceNode(lobbyid string) (string, error) {
 			}
 		}
 	}
-	// TODO 这里打日志无反应。。但是调用方却没有返回err。。这到底是怎么回事。。？
 	return minnode, nil
 }
 

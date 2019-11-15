@@ -57,6 +57,7 @@ func (l *LobbyEntity) CreateRoom(roomId string) (*LiteRoomEntity, error) {
 	if err != nil {
 		return nil, err
 	}
+	gonode.Debug("The Node is :" + nodeId)
 	lr := NewLiteRoomEntity(roomId, l.LobbyId, nodeId)
 	if err := gamedb.CreateRoom(lr, l.LobbyId); err != nil {
 		gonode.Debug(err)
