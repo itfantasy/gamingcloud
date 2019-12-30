@@ -2,6 +2,7 @@ package gen_lobby
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/itfantasy/gonode-toolkit/toolkit"
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
@@ -93,6 +94,9 @@ func CreateRoom(peerId string, roomId string) (*LiteRoomEntity, error) {
 	if !exist {
 		return nil, peerCannotFind(peerId)
 	}
+	if !strings.HasSuffix(roomId, l.LobbyId()) {
+		roomId = roomId + "@" + l.LobbyId()
+	}
 	lobby, err := lobbyManager().FindLobby(l.LobbyId())
 	if err != nil {
 		return nil, err
@@ -131,7 +135,7 @@ func JoinRandomRoom(peerId string) (*LiteRoomEntity, error) {
 	}
 	room, err := lobby.RandomRoom()
 	if err != nil {
-		return nil, toolkit.Err_NoMatchFound
+		return nil, err
 	}
 	return room, nil
 }

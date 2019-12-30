@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	LOBBY_COLLECT string = "_lobbys"
-	ROOM_COLLECT         = "_rooms"
+	LOBBY_COLLECT string = "__lobbys"
+	ROOM_COLLECT         = "__rooms"
 )
 
 var _context context.Context
@@ -46,7 +46,7 @@ func LobbyCol() *mongo.Collection {
 }
 
 func RoomCol(lobbyid string) *mongo.Collection {
-	return _mongo.Collect(lobbyid + ROOM_COLLECT)
+	return _mongo.Collect(ROOM_COLLECT + "@" + lobbyid)
 }
 
 func CreateLobby(entity interface{}) error {

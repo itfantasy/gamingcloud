@@ -3,9 +3,11 @@ package gen_room
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/itfantasy/gonode"
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
+	"github.com/itfantasy/gonode/components/mongodb"
 )
 
 type GenRoomCallbacks interface {
@@ -28,6 +30,12 @@ func InitGameDB(mongoConf string) error {
 }
 
 func CreateRoom(peerId string, roomId string, lobbyId string, maxPeers byte) (*RoomEntity, *Actor, error) {
+	if peerId == "" || roomId == "" || lobbyId == "" || maxPeers <= 0 {
+		return nil, nil, errors.New("illegal args for room creating!!")
+	}
+	if !strings.HasSuffix(roomId, lobbyId) {
+		roomId = roomId + "@" + lobbyId
+	}
 	room, err := roomManager().CreateRoom(roomId, lobbyId, maxPeers)
 	if err != nil {
 		return nil, nil, err
@@ -49,16 +57,26 @@ func CreateRoom(peerId string, roomId string, lobbyId string, maxPeers byte) (*R
 }
 
 func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
+	if peerId == "" || roomId == "" {
+		return nil, nil, errors.New("illegal args for room joining!!")
+	}
 	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
-		return nil, nil, err
+		room, err = reuseLiteRoom(roomId)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	if room.IsFull() {
+		gonode.LogWarn("BBB")
 		return nil, nil, errors.New("the room is full!!" + roomId)
 	}
 	actor, err := room.ActorsManager().AddNewActor(peerId)
 	if err != nil {
 		return nil, nil, err
+	}
+	if room.IsEmpty() {
+		room.SetMasterId(actor.ActorNr())
 	}
 	if err := room.UpdateStatusToGameDB(); err != nil {
 		room.ActorsManager().RemoveActorByPeer(peerId)
@@ -70,7 +88,25 @@ func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 	return room, actor, nil
 }
 
+func reuseLiteRoom(roomId string) (*RoomEntity, error) {
+	infos := strings.Split(roomId, "@")
+	if len(infos) < 2 {
+		return nil, errors.New("illegal roomId:" + roomId)
+	}
+	lobbyId := infos[1]
+	lite := new(LiteRoomEntity)
+	fb := mongodb.NewFilter().Equal("roomid", roomId).Serialize()
+	if err := gamedb.FindRoom(fb, lite, lobbyId); err != nil {
+		return nil, errors.New("can not find a room with the roomId:" + roomId)
+	}
+	room := NewRoomEntityFromLite(lite)
+	return room, nil
+}
+
 func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
+	if peerId == "" || roomId == "" {
+		return nil, nil, errors.New("illegal args for room leaving!!")
+	}
 	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
 		return nil, nil, err
@@ -98,6 +134,9 @@ func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 }
 
 func GetActorInRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
+	if peerId == "" || roomId == "" {
+		return nil, nil, errors.New("illegal args for getting room actor!!")
+	}
 	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
 		return nil, nil, err
@@ -110,6 +149,9 @@ func GetActorInRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 }
 
 func DisposeRoom(roomId string) error {
+	if roomId == "" {
+		return errors.New("illegal args for room disposing!!")
+	}
 	room, err := roomManager().FindRoom(roomId)
 	if err != nil {
 		return err

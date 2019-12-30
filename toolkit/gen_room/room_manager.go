@@ -3,6 +3,7 @@ package gen_room
 import (
 	"errors"
 
+	"github.com/itfantasy/gonode"
 	"github.com/itfantasy/gonode/utils/stl"
 
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
@@ -98,6 +99,7 @@ func (r *RoomEntity) UpdateStatusToGameDB() error {
 	op := mongodb.NewOption().Set("nick", r.Nick()).
 		Set("peercount", r.PeerCount()).
 		Set("maxpeers", r.MaxPeers()).Serialize()
+	gonode.LogWarn(op)
 	_, err := gamedb.RoomCol(r.LobbyId()).UpdateOne(gamedb.Cxt(), fb, op)
 	if err != nil {
 		return err
@@ -129,14 +131,7 @@ func (r *RoomManager) FindRoom(roomId string) (*RoomEntity, error) {
 	if exist {
 		return item.(*RoomEntity), nil
 	} else {
-		//lite := new(LiteRoomEntity)
-		//fb := mongodb.NewFilter().Equal("roomid", roomId).Serialize()
-		//if err := gamedb.FindRoom(fb, lite, lobbyId); err != nil {
-		//	return nil, errors.New("can not find a room with the roomId:" + roomId)
-		//}
-		//room := NewRoomEntityFromLite(lite)
-		//r.dict.Set(roomId, room)
-		//return room
+
 		return nil, errors.New("can not find a room with the roomId:" + roomId)
 	}
 }
