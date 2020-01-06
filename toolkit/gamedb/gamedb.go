@@ -56,7 +56,7 @@ func CreateLobby(entity interface{}) error {
 	return nil
 }
 
-func UpdateLobby(filter map[string]interface{}, data map[string]interface{}) error {
+func UpdateLobby(filter map[string]interface{}, data map[string]map[string]interface{}) error {
 	if _, err := LobbyCol().UpdateOne(_context, filter, data); err != nil {
 		return err
 	}

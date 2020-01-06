@@ -68,7 +68,6 @@ func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 		}
 	}
 	if room.IsFull() {
-		gonode.LogWarn("BBB")
 		return nil, nil, errors.New("the room is full!!" + roomId)
 	}
 	actor, err := room.ActorsManager().AddNewActor(peerId)

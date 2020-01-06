@@ -3,7 +3,6 @@ package gen_room
 import (
 	"errors"
 
-	"github.com/itfantasy/gonode"
 	"github.com/itfantasy/gonode/utils/stl"
 
 	"github.com/itfantasy/gonode-toolkit/toolkit/gamedb"
@@ -99,7 +98,6 @@ func (r *RoomEntity) UpdateStatusToGameDB() error {
 	op := mongodb.NewOption().Set("nick", r.Nick()).
 		Set("peercount", r.PeerCount()).
 		Set("maxpeers", r.MaxPeers()).Serialize()
-	gonode.LogWarn(op)
 	_, err := gamedb.RoomCol(r.LobbyId()).UpdateOne(gamedb.Cxt(), fb, op)
 	if err != nil {
 		return err
