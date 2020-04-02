@@ -62,7 +62,7 @@ func (a *ActorsManager) AddNewActor(peerId string) (*Actor, error) {
 }
 
 func (a *ActorsManager) GetActorByNr(actorNr int32) (*Actor, bool) {
-	for _, item := range a.allActors.Values() {
+	for _, item := range a.allActors.Raw() {
 		actor := item.(*Actor)
 		if actor.actorNr == actorNr {
 			return actor, true
@@ -72,7 +72,7 @@ func (a *ActorsManager) GetActorByNr(actorNr int32) (*Actor, bool) {
 }
 
 func (a *ActorsManager) GetActorByPeerId(peerId string) (*Actor, bool) {
-	for _, item := range a.allActors.Values() {
+	for _, item := range a.allActors.Raw() {
 		actor := item.(*Actor)
 		if actor.peerId == peerId {
 			return actor, true
@@ -106,8 +106,8 @@ func (a *ActorsManager) RemoveActorByPeer(peerId string) (*Actor, bool) {
 }
 
 func (a *ActorsManager) GetAllActorNrs() []int32 {
-	list := make([]int32, 0, a.allActors.Count())
-	for _, item := range a.allActors.Values() {
+	list := make([]int32, 0, a.allActors.Len())
+	for _, item := range a.allActors.Raw() {
 		actor := item.(*Actor)
 		list = append(list, actor.actorNr)
 	}
@@ -115,8 +115,8 @@ func (a *ActorsManager) GetAllActorNrs() []int32 {
 }
 
 func (a *ActorsManager) GetAllPeerIds() []string {
-	list := make([]string, 0, a.allActors.Count())
-	for _, item := range a.allActors.Values() {
+	list := make([]string, 0, a.allActors.Len())
+	for _, item := range a.allActors.Raw() {
 		actor := item.(*Actor)
 		list = append(list, actor.peerId)
 	}
@@ -124,7 +124,7 @@ func (a *ActorsManager) GetAllPeerIds() []string {
 }
 
 func (a *ActorsManager) ActorsCount() int {
-	return a.allActors.Count()
+	return a.allActors.Len()
 }
 
 func (a *ActorsManager) ClearAll() {

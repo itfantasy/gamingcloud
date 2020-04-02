@@ -11,31 +11,3 @@ const (
 	PREFIX_ROOM          = "room_"
 	DEFAULT_LOBBY        = "__default"
 )
-
-const (
-	Api_JoinLobby      string = "JoinLobby"
-	Api_LeaveLobby            = "LeaveLobby"
-	Api_LobbyStats            = "LobbyStats"
-	Api_RoomList              = "RoomList"
-	Api_CreateRoom            = "CreateRoom"
-	Api_JoinRoom              = "JoinRoom"
-	Api_JoinRandomRoom        = "JoinRandomRoom"
-	Api_LeaveRoom             = "LeaveRoom"
-)
-
-const (
-	Event_Join    string = "Join"
-	Event_Leave   string = "Leave"
-	Event_Disconn string = "Disconn"
-	Event_Custom  string = "Custom"
-)
-
-const (
-	Net_RaiseEvent string = "RaiseEvent"
-)
-
-const (
-	Group_Others string = "Others"
-	Group_All    string = "All"
-	Group_Master string = "Master"
-)

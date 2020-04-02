@@ -42,20 +42,20 @@ func (e *EventCacheManager) AddEvent(actor int32, data []byte) {
 
 func (e *EventCacheManager) RemoveEventsByActor(actor int32) int {
 	dirtyList := stl.NewList(10)
-	for _, item := range e.events.Values() {
+	for _, item := range e.events.Raw() {
 		customeEvent := item.(*EventData)
 		if customeEvent.actorNr == actor {
 			dirtyList.Add(customeEvent)
 		}
 	}
-	for _, item := range dirtyList.Values() {
+	for _, item := range dirtyList.Raw() {
 		e.events.Remove(item)
 	}
-	return dirtyList.Count()
+	return dirtyList.Len()
 }
 
 func (e *EventCacheManager) Events() []interface{} {
-	return e.events.Values()
+	return e.events.Raw()
 }
 
 func (e *EventCacheManager) ClearCache() {

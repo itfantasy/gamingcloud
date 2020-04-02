@@ -1,6 +1,8 @@
 package toolkit
 
 import (
+	"errors"
+
 	"github.com/itfantasy/gonode/utils/stl"
 )
 
@@ -19,11 +21,17 @@ func NewPeerManager() *PeerManager {
 }
 
 func (this *PeerManager) AddPeer(peer Peer) error {
-	return this.dict.Add(peer.PeerId(), peer)
+	if ret := this.dict.Add(peer.PeerId(), peer); !ret {
+		return errors.New("the manager has contains the peer!" + peer.PeerId())
+	}
+	return nil
 }
 
 func (this *PeerManager) RemovePeer(peerId string) error {
-	return this.dict.Remove(peerId)
+	if ret := this.dict.Remove(peerId); !ret {
+		return errors.New("the manager can not find the peer!" + peerId)
+	}
+	return nil
 }
 
 func (this *PeerManager) GetPeer(peerId string) (Peer, bool) {

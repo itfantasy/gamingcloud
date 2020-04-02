@@ -20,10 +20,10 @@ type LobbyPeer struct {
 }
 
 func NewLobbyPeer(peerId string) *LobbyPeer {
-	this := new(LobbyPeer)
-	this.peerId = peerId
-	this.lobbyId = toolkit.DEFAULT_LOBBY
-	return this
+	l := new(LobbyPeer)
+	l.peerId = peerId
+	l.lobbyId = toolkit.DEFAULT_LOBBY
+	return l
 }
 
 func (l *LobbyPeer) PeerId() string {

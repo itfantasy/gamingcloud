@@ -20,9 +20,9 @@ type RoomPeer struct {
 }
 
 func NewRoomPeer(peerId string) *RoomPeer {
-	this := new(RoomPeer)
-	this.peerId = peerId
-	return this
+	r := new(RoomPeer)
+	r.peerId = peerId
+	return r
 }
 
 func (r *RoomPeer) PeerId() string {

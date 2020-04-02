@@ -10,16 +10,16 @@ import (
 	"github.com/itfantasy/gonode/components/mongodb"
 )
 
-type GenRoomCallbacks interface {
-	OnJoin(actor *Actor, room *RoomEntity)
-	OnLeave(actor *Actor, room *RoomEntity)
+type IGenRoomEventer interface {
+	OnJoinRoom(actor *Actor, room *RoomEntity)
+	OnLeaveRoom(actor *Actor, room *RoomEntity)
 	OnCustomEvent(actor *Actor, room *RoomEntity, data []byte)
 }
 
-var _callbacks GenRoomCallbacks
+var _eventer IGenRoomEventer
 
-func BindCallbacks(callbacks GenRoomCallbacks) {
-	_callbacks = callbacks
+func BindEventCallback(eventer IGenRoomEventer) {
+	_eventer = eventer
 }
 
 func InitGameDB(mongoConf string) error {
@@ -50,8 +50,8 @@ func CreateRoom(peerId string, roomId string, lobbyId string, maxPeers byte) (*R
 		room.SetMasterId(0)
 		return nil, nil, err
 	}
-	if _callbacks != nil {
-		_callbacks.OnJoin(actor, room)
+	if _eventer != nil {
+		_eventer.OnJoinRoom(actor, room)
 	}
 	return room, actor, nil
 }
@@ -81,8 +81,8 @@ func JoinRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 		room.ActorsManager().RemoveActorByPeer(peerId)
 		return nil, nil, err
 	}
-	if _callbacks != nil {
-		_callbacks.OnJoin(actor, room)
+	if _eventer != nil {
+		_eventer.OnJoinRoom(actor, room)
 	}
 	return room, actor, nil
 }
@@ -126,8 +126,8 @@ func LeaveRoom(peerId string, roomId string) (*RoomEntity, *Actor, error) {
 	if err := room.UpdateStatusToGameDB(); err != nil {
 		return nil, nil, err
 	}
-	if _callbacks != nil {
-		_callbacks.OnLeave(actor, room)
+	if _eventer != nil {
+		_eventer.OnLeaveRoom(actor, room)
 	}
 	return room, actor, nil
 }
@@ -212,8 +212,8 @@ func RaiseEvent(peerId string, roomId string, data []byte, rcvGroup byte, addToR
 	default:
 		theErr = errors.New("unkown RcvGroup type!!")
 	}
-	if _callbacks != nil {
-		_callbacks.OnCustomEvent(actor, room, data)
+	if _eventer != nil {
+		_eventer.OnCustomEvent(actor, room, data)
 	}
 	return theErr
 }

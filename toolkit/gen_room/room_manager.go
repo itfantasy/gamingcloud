@@ -147,7 +147,7 @@ func (r *RoomManager) FetchRoom(roomId string, lobbyId string, maxPeers byte) *R
 
 func (r *RoomManager) DisposeRoom(roomId string) {
 	// need dispose the actorsManager and the eventCache
-	for _, val := range r.dict.KeyValuePairs() {
+	for _, val := range r.dict.Raw() {
 		room := val.(*RoomEntity)
 		room.actorsManager.ClearAll()
 		room.eventCache.ClearCache()
