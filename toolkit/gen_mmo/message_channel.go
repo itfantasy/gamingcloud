@@ -38,6 +38,9 @@ func (m *MessageChannel) Publish(msg interface{}) bool {
 }
 
 func (m *MessageChannel) Subscribe(executor *actors.Executor, action func(interface{})) IDisposer {
+	m.Lock()
+	defer m.Unlock()
+
 	sid := snowflake.GenerateRaw()
 	sub := NewMsgChanSubscriber(sid, action, executor, m)
 	m.subscribers[sid] = sub

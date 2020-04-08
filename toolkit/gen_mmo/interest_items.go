@@ -46,7 +46,24 @@ func (i *InterestItems) SubscribedItem_OnItemDisposed(msg interface{}) {
 
 func (i *InterestItems) SubscribedItem_OnItemEvent(msg interface{}) {
 	m := msg.(ItemEventMessage)
-	MmoEventCallback(i.peer, Event_ItemEvent, m)
+	switch m.Code() {
+	case Event_ItemDestroyed:
+		message := m.Data().(*ItemDestroyed)
+		i.peer.MmoEventer().OnItemDestroyed(i.peer, message.ItemId)
+		break
+	case Event_ItemMoved:
+		message := m.Data().(*ItemMoved)
+		i.peer.MmoEventer().OnItemMoved(i.peer, message)
+		break
+	case Event_ItemPropertiesSet:
+		message := m.Data().(*ItemPropertiesSet)
+		i.peer.MmoEventer().OnItemPropertiesSet(i.peer, message)
+		break
+	case Event_ItemGeneric:
+		message := m.Data().(*ItemGeneric)
+		i.peer.MmoEventer().OnItemGenericEvent(i.peer, message)
+		break
+	}
 }
 
 func (i *InterestItems) ClearManualSubscriptions() {

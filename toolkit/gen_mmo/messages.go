@@ -89,17 +89,16 @@ func (i *ItemPositionMessage) Position() *Vector {
 }
 
 type ItemEventMessage struct {
-	source    *MmoItem
-	eventData *EventData
+	source *MmoItem
+	code   byte
+	data   interface{}
 }
 
-func NewItemEventMessage(source *MmoItem, code byte, datas interface{}) *ItemEventMessage {
+func NewItemEventMessage(source *MmoItem, code byte, data interface{}) *ItemEventMessage {
 	i := new(ItemEventMessage)
 	i.source = source
-	i.eventData = &EventData{
-		Code:  code,
-		Datas: datas,
-	}
+	i.code = code
+	i.data = data
 	return i
 }
 
@@ -107,6 +106,10 @@ func (i *ItemEventMessage) Source() *MmoItem {
 	return i.source
 }
 
-func (i ItemEventMessage) EventData() *EventData {
-	return i.eventData
+func (i *ItemEventMessage) Code() byte {
+	return i.code
+}
+
+func (i *ItemEventMessage) Data() interface{} {
+	return i.data
 }

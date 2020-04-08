@@ -152,23 +152,21 @@ func (i *InterestArea) OnItemRegionChange(msg interface{}) {
 
 func (i *InterestArea) OnItemEnter(snapshot *ItemSnapshot) {
 	item := snapshot.Source()
-	subscribeEvent := &ItemSubscribed{
+	i.peer.MmoEventer().OnItemSubscribed(i.peer, &ItemSubscribed{
+		InterestAreaId:     i.Id(),
 		ItemId:             item.Id(),
 		ItemType:           item.Type(),
 		Position:           snapshot.Position(),
-		PropertiesRevision: snapshot.PropertiesRevision(),
-		InterestAreaId:     i.Id(),
 		Rotation:           snapshot.Rotation(),
-	}
-	MmoEventCallback(i.peer, Event_ItemSubscribed, subscribeEvent)
+		PropertiesRevision: snapshot.PropertiesRevision(),
+	})
 }
 
 func (i *InterestArea) OnItemExit(item *MmoItem) {
-	unsubscribeEvent := &ItemUnsubscribed{
-		ItemId:         item.Id(),
+	i.peer.MmoEventer().OnItemUnsubscribed(i.peer, &ItemUnsubscribed{
 		InterestAreaId: i.Id(),
-	}
-	MmoEventCallback(i.peer, Event_ItemUnsubscribed, unsubscribeEvent)
+		ItemId:         item.Id(),
+	})
 }
 
 func (i *InterestArea) AttachedItem_OnItemDisposed(msg interface{}) {
@@ -191,8 +189,25 @@ func (i *InterestArea) AttachedItem_OnItemPosition(msg interface{}) {
 }
 
 func (i *InterestArea) Region_OnItemEvent(msg interface{}) {
-	message := msg.(*ItemEventMessage)
-	MmoEventCallback(i.peer, Event_ItemEvent, message.EventData())
+	m := msg.(ItemEventMessage)
+	switch m.Code() {
+	case Event_ItemDestroyed:
+		message := m.Data().(*ItemDestroyed)
+		i.peer.MmoEventer().OnItemDestroyed(i.peer, message.ItemId)
+		break
+	case Event_ItemMoved:
+		message := m.Data().(*ItemMoved)
+		i.peer.MmoEventer().OnItemMoved(i.peer, message)
+		break
+	case Event_ItemPropertiesSet:
+		message := m.Data().(*ItemPropertiesSet)
+		i.peer.MmoEventer().OnItemPropertiesSet(i.peer, message)
+		break
+	case Event_ItemGeneric:
+		message := m.Data().(*ItemGeneric)
+		i.peer.MmoEventer().OnItemGenericEvent(i.peer, message)
+		break
+	}
 }
 
 func (i *InterestArea) SubscribeRegions(newRegions *stl.HashSet) {

@@ -9,12 +9,14 @@ type MmoPeer struct {
 	requestExecutor   *actors.Executor
 	actor             *MmoActor
 	radarSubscription IDisposer
+	eventer           IMmoEventer
 }
 
-func NewMmoPeer(peerId string) *MmoPeer {
+func NewMmoPeer(peerId string, eventer IMmoEventer) *MmoPeer {
 	m := new(MmoPeer)
 	m.peerId = peerId
 	m.requestExecutor = actors.Spawn(1024)
+	m.eventer = eventer
 	return m
 }
 
@@ -28,6 +30,10 @@ func (m *MmoPeer) RequestExecutor() *actors.Executor {
 
 func (m *MmoPeer) MmoActor() *MmoActor {
 	return m.actor
+}
+
+func (m *MmoPeer) MmoEventer() IMmoEventer {
+	return m.eventer
 }
 
 func (m *MmoPeer) SetActorHandler(actor *MmoActor) {

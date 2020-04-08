@@ -64,8 +64,7 @@ func (r *Radar) GetUpdateEvent(item *MmoItem, position *Vector, remove bool) *Ra
 func (r *Radar) PublishAll(peer *MmoPeer) {
 	kvs := r.itemPositions.KeyValuePairs()
 	for item, position := range kvs {
-		message := r.GetUpdateEvent(item, position, false)
-		MmoEventCallback(peer, Event_RadarUpdate, message)
+		peer.MmoEventer().OnRadarUpdate(peer, r.GetUpdateEvent(item, position, false))
 	}
 }
 

@@ -1,33 +1,22 @@
 package gen_mmo
 
 type IMmoEventer interface {
-	OnMmoEvent(*MmoPeer, byte, interface{})
-}
-
-var _eventer IMmoEventer
-
-func BindEventCallback(eventer IMmoEventer) {
-	_eventer = eventer
-}
-
-func MmoEventCallback(peer *MmoPeer, evnCode byte, evnData interface{}) {
-	if _eventer != nil {
-		_eventer.OnMmoEvent(peer, evnCode, evnData)
-	}
+	OnItemGenericEvent(peer *MmoPeer, event *ItemGeneric)
+	OnItemDestroyed(peer *MmoPeer, itemId string)
+	OnItemMoved(peer *MmoPeer, event *ItemMoved)
+	OnItemPropertiesSet(peer *MmoPeer, event *ItemPropertiesSet)
+	OnWorldExited(peer *MmoPeer, worldName string)
+	OnItemSubscribed(peer *MmoPeer, event *ItemSubscribed)
+	OnItemUnsubscribed(peer *MmoPeer, event *ItemUnsubscribed)
+	OnRadarUpdate(peer *MmoPeer, event *RadarUpdate)
 }
 
 const (
-	Event_ItemEvent byte = iota
-	Event_ItemDestroyed
+	Event_ItemDestroyed byte = iota
 	Event_ItemMoved
 	Event_ItemPropertiesSet
-	Event_WorldExited
-	Event_ItemSubscribed
-	Event_ItemUnsubscribed
-	Event_ItemProperties
-	Event_RadarUpdate
-	Event_CounterData
 	Event_ItemGeneric
+	Event_RadarUpdate
 )
 
 const (
@@ -35,14 +24,14 @@ const (
 	EventReceiver_ItemOwner           = 2
 )
 
-type ItemDestroyed struct {
-	ItemId string
+type ItemGeneric struct {
+	ItemId          string
+	CustomEventCode byte
+	EventData       []byte
 }
 
-type ItemGeneric struct {
-	CustomEventCode byte
-	EventData       interface{}
-	ItemId          string
+type ItemDestroyed struct {
+	ItemId string
 }
 
 type ItemMoved struct {
@@ -55,6 +44,7 @@ type ItemMoved struct {
 
 type ItemProperties struct {
 	ItemId             string
+	Source             *MmoItem
 	PropertiesRevision int
 	PropertiesSet      map[interface{}]interface{}
 	Updated            bool
@@ -86,13 +76,4 @@ type RadarUpdate struct {
 	ItemType byte
 	Position *Vector
 	Remove   bool
-}
-
-type WorldExited struct {
-	WorldName string
-}
-
-type EventData struct {
-	Code  byte
-	Datas interface{}
 }
