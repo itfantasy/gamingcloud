@@ -75,7 +75,7 @@ func (r *Radar) PublishUpdate(item *MmoItem, position *Vector, remove bool) {
 }
 
 func (r *Radar) RemoveItem(msg interface{}) {
-	message := msg.(ItemDisposedMessage)
+	message := msg.(*ItemDisposedMessage)
 	item := message.Source()
 	r.itemPositions.Remove(item)
 	if sub, exists := r.itemSubscriptions.Get(item); exists {
@@ -85,7 +85,7 @@ func (r *Radar) RemoveItem(msg interface{}) {
 }
 
 func (r *Radar) UpdatePosition(msg interface{}) {
-	message := msg.(ItemPositionMessage)
+	message := msg.(*ItemPositionMessage)
 	item := message.Source()
 	if _, exists := r.itemPositions.Get(item); exists {
 		r.itemPositions.Set(item, message.Position())

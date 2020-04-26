@@ -4,6 +4,7 @@ type IMmoEventer interface {
 	OnItemGenericEvent(peer *MmoPeer, event *ItemGeneric)
 	OnItemDestroyed(peer *MmoPeer, itemId string)
 	OnItemMoved(peer *MmoPeer, event *ItemMoved)
+	OnItemProperties(peer *MmoPeer, event *ItemProperties)
 	OnItemPropertiesSet(peer *MmoPeer, event *ItemPropertiesSet)
 	OnWorldExited(peer *MmoPeer, worldName string)
 	OnItemSubscribed(peer *MmoPeer, event *ItemSubscribed)
@@ -44,10 +45,8 @@ type ItemMoved struct {
 
 type ItemProperties struct {
 	ItemId             string
-	Source             *MmoItem
 	PropertiesRevision int
 	PropertiesSet      map[interface{}]interface{}
-	Updated            bool
 }
 
 type ItemPropertiesSet struct {

@@ -15,8 +15,8 @@ func NewInterestItems(peer *MmoPeer) *InterestItems {
 	i := new(InterestItems)
 	i.peer = peer
 	i.manualItemSubscriptions = NewDictMmoItemIDisposer()
-	i.itemEventExecutor = actors.Spawn(1024)
-	i.subManagementExecutor = actors.Spawn(1024)
+	i.itemEventExecutor = nil     // actors.Spawn(1024)
+	i.subManagementExecutor = nil // actors.Spawn(1024)
 	return i
 }
 
@@ -40,12 +40,12 @@ func (i *InterestItems) UnsubscribeItem(item *MmoItem) bool {
 }
 
 func (i *InterestItems) SubscribedItem_OnItemDisposed(msg interface{}) {
-	itemDisposeMessage := msg.(ItemDisposedMessage)
+	itemDisposeMessage := msg.(*ItemDisposedMessage)
 	i.UnsubscribeItem(itemDisposeMessage.Source())
 }
 
 func (i *InterestItems) SubscribedItem_OnItemEvent(msg interface{}) {
-	m := msg.(ItemEventMessage)
+	m := msg.(*ItemEventMessage)
 	switch m.Code() {
 	case Event_ItemDestroyed:
 		message := m.Data().(*ItemDestroyed)

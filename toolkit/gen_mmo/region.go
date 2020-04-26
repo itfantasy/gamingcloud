@@ -13,6 +13,10 @@ func NewRegion(x, y int) *Region {
 	r := new(Region)
 	r.x = x
 	r.y = y
+	r.itemRegionChangedChannel = NewMessageChannel()
+	r.requestItemEnterChannel = NewMessageChannel()
+	r.requestItemExitChannel = NewMessageChannel()
+	r.itemEventChannel = NewMessageChannel()
 	return r
 }
 

@@ -38,7 +38,7 @@ func NewInterestArea(peer *MmoPeer, id byte, world *World) *InterestArea {
 	i.requestItemEnterMessage = NewRequestItemEnterMessage(i)
 	i.requestItemExitMessage = NewRequestItemExitMessage(i)
 	i.regions = stl.NewHashSet()
-	i.subManagementExecutor = actors.Spawn(1024)
+	i.subManagementExecutor = nil //actors.Spawn(1024)
 	i.regionSubscriptions = NewDictRegionIDisposer()
 
 	i.peer = peer
@@ -189,7 +189,7 @@ func (i *InterestArea) AttachedItem_OnItemPosition(msg interface{}) {
 }
 
 func (i *InterestArea) Region_OnItemEvent(msg interface{}) {
-	m := msg.(ItemEventMessage)
+	m := msg.(*ItemEventMessage)
 	switch m.Code() {
 	case Event_ItemDestroyed:
 		message := m.Data().(*ItemDestroyed)
@@ -236,7 +236,9 @@ func (i *InterestArea) UnsubscribeRegionsNotIn(regionsToSurvive *stl.HashSet) {
 }
 
 func (i *InterestArea) Dispose() {
-	i.subManagementExecutor.Dispose()
+	if i.subManagementExecutor != nil {
+		i.subManagementExecutor.Dispose()
+	}
 	if i.attachedItem != nil {
 		i.itemMovementSubscription.Dispose()
 		i.itemMovementSubscription = nil

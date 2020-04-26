@@ -24,16 +24,17 @@ func (m *MessageChannel) Publish(msg interface{}) bool {
 
 	if len(m.subscribers) > 0 {
 		for _, subscriber := range m.subscribers {
-			if subscriber.executor.Living() {
+			if subscriber.executor != nil && subscriber.executor.Living() {
 				subscriber.executor.Execute(func() {
-					subscriber.action(msg)
+					if subscriber != nil && subscriber.action != nil {
+						subscriber.action(msg)
+					}
 				})
 			} else {
-				return false
+				subscriber.action(msg)
 			}
 		}
 	}
-
 	return true
 }
 

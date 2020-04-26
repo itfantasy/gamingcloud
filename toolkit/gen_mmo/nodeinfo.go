@@ -14,6 +14,7 @@ type MmoServerInfo struct {
 
 func (m *MmoServerInfo) ExpandToNodeInfo() *gen_server.NodeInfo {
 	info := gen_server.NewNodeInfo()
+	info.Id = m.Id
 	info.Url = m.Url
 	info.Pub = true
 	info.BackEnds = ""

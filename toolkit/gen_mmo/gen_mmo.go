@@ -27,6 +27,8 @@ func EnterWorld(peerId string, usrName string, worldName string, interestAreaId 
 		return nil, nil, Err_WorldNotFound
 	}
 	interestArea := NewInterestArea(peer, interestAreaId, world)
+	interestArea.SetViewDistanceEnter(viewDistanceEnter)
+	interestArea.SetViewDistanceExit(viewDistanceExit)
 	actor := NewMmoActor(peer, world)
 	actor.AddInterestArea(interestArea)
 	avatar := NewMmoItem(position, rotation, properties, actor, usrName, ItemType_Avatar, world)
@@ -134,7 +136,7 @@ func doItemDestroy(actor *MmoActor, item *MmoItem) error {
 	return nil
 }
 
-func GetProperties(peerId string, itemId string, propertiesRevision int) (*ItemProperties, error) {
+func GetProperties(peerId string, itemId string, propertiesRevision int) (*MmoItem, error) {
 	peer, err := doCheckPeerAndActor(peerId)
 	if err != nil {
 		return nil, err
@@ -151,20 +153,21 @@ func GetProperties(peerId string, itemId string, propertiesRevision int) (*ItemP
 	return doItemGetProperties(item, propertiesRevision)
 }
 
-func doItemGetProperties(item *MmoItem, propertiesRevision int) (*ItemProperties, error) {
+func doItemGetProperties(item *MmoItem, propertiesRevision int) (*MmoItem, error) {
 	if item.Disposed() {
 		return nil, Err_ItemNotFound
 	}
-	return &ItemProperties{
-		ItemId:             item.Id(),
-		Source:             item,
-		PropertiesRevision: item.PropertiesRevision(),
-		PropertiesSet:      item.Properties().KeyValuePairs(),
-		Updated:            item.PropertiesRevision() != propertiesRevision,
-	}, nil
+	if propertiesRevision != 0 && item.PropertiesRevision() != propertiesRevision {
+		item.Owner().Peer().MmoEventer().OnItemProperties(item.Owner().Peer(), &ItemProperties{
+			ItemId:             item.Id(),
+			PropertiesRevision: item.PropertiesRevision(),
+			PropertiesSet:      item.Properties().KeyValuePairs(),
+		})
+	}
+	return item, nil
 }
 
-func Move(peerId string, itemId string, position *Vector, rotation *Vector) (*MmoItem, error) {
+func MoveItem(peerId string, itemId string, position *Vector, rotation *Vector) (*MmoItem, error) {
 	peer, err := doCheckPeerAndActor(peerId)
 	if err != nil {
 		return nil, err
@@ -230,7 +233,7 @@ func doItemSetProperties(actor *MmoActor, item *MmoItem, propertiesSet map[inter
 	eventInstance := &ItemPropertiesSet{
 		ItemId:             item.Id(),
 		PropertiesRevision: item.PropertiesRevision(),
-		PropertiesSet:      propertiesSet,
+		PropertiesSet:      item.Properties().KeyValuePairs(),
 		PropertiesUnset:    propertiesUnset,
 	}
 	message := NewItemEventMessage(item, Event_ItemPropertiesSet, eventInstance)

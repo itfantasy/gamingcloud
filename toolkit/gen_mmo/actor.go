@@ -4,6 +4,12 @@ import (
 	"errors"
 )
 
+const (
+	Actor_NotMine byte = iota
+	Actor_OwnedItem
+	Actor_Avatar
+)
+
 type MmoActor struct {
 	interestAreas *DictByteInterestArea
 	interestItems *InterestItems
@@ -70,6 +76,16 @@ func (m *MmoActor) TryGetInterestArea(interestAreaId byte) (*InterestArea, bool)
 
 func (m *MmoActor) TryGetItem(itemId string) (*MmoItem, bool) {
 	return m.ownedItems.Get(itemId)
+}
+
+func (m *MmoActor) IsMine(itemId string) byte {
+	if m.Avatar().Id() == itemId {
+		return Actor_Avatar
+	}
+	if _, exists := m.ownedItems.Get(itemId); exists {
+		return Actor_OwnedItem
+	}
+	return Actor_NotMine
 }
 
 func (m *MmoActor) Dispose() {

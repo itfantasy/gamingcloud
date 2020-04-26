@@ -24,6 +24,13 @@ func (m *MmoPeer) PeerId() string {
 	return m.peerId
 }
 
+func (m *MmoPeer) AvatarId() string {
+	if m.actor != nil && m.actor.Avatar() != nil {
+		return m.actor.Avatar().Id()
+	}
+	return ""
+}
+
 func (m *MmoPeer) RequestExecutor() *actors.Executor {
 	return m.requestExecutor
 }
