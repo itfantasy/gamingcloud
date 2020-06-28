@@ -21,7 +21,7 @@ const (
 )
 
 var _context context.Context
-var _mongo *mongodb.MongoDB
+var _mongo *components.MongoDB
 
 func Cxt() context.Context {
 	return _context
@@ -32,7 +32,7 @@ func InitMongo(mongoConf string) error {
 	if err != nil {
 		return err
 	}
-	mongoComp, ok := comp.(*mongodb.MongoDB)
+	mongoComp, ok := comp.(*components.MongoDB)
 	if !ok {
 		return errors.New("the gamedb only support mongodb compontent to init itself!")
 	}

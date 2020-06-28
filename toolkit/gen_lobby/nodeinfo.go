@@ -8,25 +8,24 @@ import (
 )
 
 type LobbyServerInfo struct {
-	Id       string
-	Url      string
-	LogLevel string
-	LogComp  string
-	RegComp  string
+	RegDC     string
+	NameSpace string
+	NodeId    string
+	EndPoints []string
+	GameDB    string
 }
 
 func (serverInfo *LobbyServerInfo) ExpandToNodeInfo() *gen_server.NodeInfo {
 	info := gen_server.NewNodeInfo()
-	if strs.StartsWith(serverInfo.Id, toolkit.LABEL_LOBBY) {
-		info.Id = serverInfo.Id
+	info.RegDC = serverInfo.RegDC
+	info.NameSpace = serverInfo.NameSpace
+	if strs.StartsWith(serverInfo.NodeId, toolkit.LABEL_LOBBY) {
+		info.NodeId = serverInfo.NodeId
 	} else {
-		info.Id = toolkit.PREFIX_LOBBY + serverInfo.Id
+		info.NodeId = toolkit.PREFIX_LOBBY + serverInfo.NodeId
 	}
-	info.Url = serverInfo.Url
-	info.Pub = true
+	info.EndPoints = serverInfo.EndPoints
+	info.IsPub = true
 	info.BackEnds = ""
-	info.LogLevel = serverInfo.LogLevel
-	info.LogComp = serverInfo.LogComp
-	info.RegComp = serverInfo.RegComp
 	return info
 }

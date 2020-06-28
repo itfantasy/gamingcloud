@@ -5,21 +5,19 @@ import (
 )
 
 type MmoServerInfo struct {
-	Id       string
-	Url      string
-	LogLevel string
-	LogComp  string
-	RegComp  string
+	RegDC     string
+	NameSpace string
+	NodeId    string
+	EndPoints []string
 }
 
 func (m *MmoServerInfo) ExpandToNodeInfo() *gen_server.NodeInfo {
 	info := gen_server.NewNodeInfo()
-	info.Id = m.Id
-	info.Url = m.Url
-	info.Pub = true
+	info.RegDC = m.RegDC
+	info.NameSpace = m.NameSpace
+	info.NodeId = m.NodeId
+	info.EndPoints = m.EndPoints
+	info.IsPub = true
 	info.BackEnds = ""
-	info.LogLevel = m.LogLevel
-	info.LogComp = m.LogComp
-	info.RegComp = m.RegComp
 	return info
 }
